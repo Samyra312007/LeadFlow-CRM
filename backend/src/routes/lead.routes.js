@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { auth } = require('../middleware/auth');
 
 const {
   getAllLeads, getLeadById, createLead,
@@ -8,6 +9,8 @@ const {
 
 const validate = require('../middleware/validate');
 const { createLeadSchema, updateLeadSchema, statusSchema } = require('../validators/lead.validator');
+
+router.use(auth);
 
 router.get('/stats', getStats);
 router.get('/search', searchLeads);

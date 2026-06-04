@@ -1,10 +1,21 @@
 'use client';
 
+import { useAuth } from '@/lib/auth';
+
 interface NavbarProps {
   onMenuClick: () => void;
 }
 
 export function Navbar({ onMenuClick }: NavbarProps) {
+  const { user } = useAuth();
+
+  const initials = user?.name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'U';
+
   return (
     <header className="sticky top-0 z-40 flex justify-between items-center w-full px-6 py-4 bg-surface/85 backdrop-blur-xl shadow-sm">
       <div className="flex items-center gap-4">
@@ -16,7 +27,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           <span className="material-symbols-outlined">menu</span>
         </button>
         <h2 className="font-headline-sm text-headline-sm font-bold text-primary hidden sm:block">
-          LeadFlow CRM
+          NexusCRM
         </h2>
       </div>
 
@@ -31,13 +42,13 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </div>
         <div className="flex items-center gap-3 pl-4 border-l border-outline-variant">
           <div className="text-right hidden sm:block">
-            <p className="font-label-md text-label-md text-primary">Alex Rivera</p>
+            <p className="font-label-md text-label-md text-primary">{user?.name || 'User'}</p>
             <p className="text-[10px] text-on-surface-variant uppercase tracking-wider font-medium">
-              Account Executive
+              {user?.role || 'User'}
             </p>
           </div>
           <div className="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold">
-            AR
+            {initials}
           </div>
         </div>
       </div>

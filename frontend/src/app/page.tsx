@@ -1,200 +1,113 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
-import toast from 'react-hot-toast';
-import AppShell from '@/components/layout/app-shell';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ConfirmDialog } from '@/components/ui/dialog';
-import { StatsCards } from '@/components/leads/stats-cards';
-import { StatusChart } from '@/components/leads/status-chart';
-import { LeadsTable } from '@/components/leads/leads-table';
-import { LeadsToolbar } from '@/components/leads/leads-toolbar';
-import { Pagination } from '@/components/leads/pagination';
-import { LeadModal } from '@/components/leads/lead-modal';
-import { useGetLeads, useGetStats, useCreateLead, useUpdateLead, useDeleteLead, useUpdateLeadStatus } from '@/hooks/useLeads';
-import type { Lead, LeadFormData, LeadStatus } from '@/constants/leadStatus';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/lib/auth';
 
-export default function DashboardPage() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [sort, setSort] = useState('-createdAt');
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editingLead, setEditingLead] = useState<Lead | null>(null);
-  const [deletingLead, setDeletingLead] = useState<Lead | null>(null);
+const features = [
+  {
+    icon: 'account_tree',
+    title: 'Pipeline Management',
+    desc: 'Visualize and manage your entire sales pipeline with drag-free stage tracking and deal oversight.',
+  },
+  {
+    icon: 'contacts',
+    title: 'Contact Tracking',
+    desc: 'Keep detailed records of every contact, from source to position, all in one place.',
+  },
+  {
+    icon: 'assignment',
+    title: 'Task Management',
+    desc: 'Stay on top of your to-dos with priority-based task tracking and status updates.',
+  },
+  {
+    icon: 'analytics',
+    title: 'Analytics & Insights',
+    desc: 'Make data-driven decisions with real-time stats on leads, deals, and conversions.',
+  },
+];
 
-  const { data: leadsRes, isLoading: leadsLoading, isError: leadsError, error: leadsErr } = useGetLeads({ page, limit: 10, search, status, sort });
-  const { data: statsRes, isLoading: statsLoading, isError: statsError } = useGetStats();
+export default function LandingPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
-    if (window.location.search === '?new=true') {
-      setEditingLead(null);
-      setModalOpen(true);
-      window.history.replaceState(null, '', '/');
+    if (!isLoading && user) {
+      router.replace('/dashboard');
     }
-  }, []);
+  }, [user, isLoading, router]);
 
-  const createMutation = useCreateLead();
-  const updateMutation = useUpdateLead();
-  const deleteMutation = useDeleteLead();
-  const updateStatusMutation = useUpdateLeadStatus();
-
-  const handleStatusChange = useCallback(async (id: string, status: LeadStatus) => {
-    try {
-      await updateStatusMutation.mutateAsync({ id, status });
-      toast.success(`Status changed to ${status}`);
-    } catch {
-      toast.error('Failed to update status');
-    }
-  }, [updateStatusMutation]);
-
-  const handleSearch = useCallback((val: string) => {
-    setSearch(val);
-    setPage(1);
-  }, []);
-
-  const handleStatus = useCallback((val: string) => {
-    setStatus(val);
-    setPage(1);
-  }, []);
-
-  const handleSort = useCallback((field: string) => {
-    setSort(field);
-  }, []);
-
-  const openCreateModal = useCallback(() => {
-    setEditingLead(null);
-    setModalOpen(true);
-  }, []);
-
-  const openEditModal = useCallback((lead: Lead) => {
-    setEditingLead(lead);
-    setModalOpen(true);
-  }, []);
-
-  const closeModal = useCallback(() => {
-    setModalOpen(false);
-    setEditingLead(null);
-  }, []);
-
-  const handleFormSubmit = useCallback(async (values: LeadFormData) => {
-    try {
-      if (editingLead) {
-        await updateMutation.mutateAsync({ id: editingLead._id, ...values });
-        toast.success('Lead updated successfully');
-      } else {
-        await createMutation.mutateAsync(values);
-        toast.success('Lead created successfully');
-      }
-      closeModal();
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Something went wrong');
-    }
-  }, [editingLead, createMutation, updateMutation, closeModal]);
-
-  const handleDeleteConfirm = useCallback(async () => {
-    if (!deletingLead) return;
-    try {
-      await deleteMutation.mutateAsync(deletingLead._id);
-      toast.success('Lead deleted successfully');
-      setDeletingLead(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Something went wrong');
-    }
-  }, [deletingLead, deleteMutation]);
-
-  const isFormSubmitting = createMutation.isPending || updateMutation.isPending;
-
-  const apiError = leadsError || statsError;
+  if (isLoading || user) return null;
 
   return (
-    <AppShell>
-      <div className="space-y-8">
-        {apiError && (
-          <div className="flex items-center gap-3 px-4 py-3 bg-error-container text-on-error-container rounded-xl text-body-sm">
-            <span className="material-symbols-outlined text-lg">error</span>
-            <p>Failed to load data. Please check that the backend server is running.</p>
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 bg-surface/85 backdrop-blur-xl border-b border-outline-variant/20">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <h1 className="font-headline-sm text-headline-sm font-black text-primary">NexusCRM</h1>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/login"
+              className="px-5 py-2.5 text-label-md text-on-surface-variant hover:text-primary font-medium transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/register"
+              className="px-5 py-2.5 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-all active:scale-95"
+            >
+              Get Started
+            </Link>
           </div>
-        )}
+        </div>
+      </header>
 
-        <section className="flex items-start justify-between">
-          <div>
-            <h1 className="font-headline-lg text-headline-lg text-primary">Dashboard</h1>
-            <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-              Track your sales pipeline and manage leads.
-            </p>
-          </div>
-          <Button onClick={openCreateModal}>
-            <span className="material-symbols-outlined text-[18px]">add</span>
-            New Lead
-          </Button>
-        </section>
-
-        <StatsCards data={statsRes?.data} isLoading={statsLoading} />
-
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <h3 className="font-headline-sm text-headline-sm text-primary">Leads</h3>
-                  <span className="text-body-sm text-on-surface-variant">
-                    {leadsRes?.pagination?.total ?? 0} total
-                  </span>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <LeadsToolbar
-                  search={search}
-                  status={status}
-                  onSearchChange={handleSearch}
-                  onStatusChange={handleStatus}
-                />
-                <LeadsTable
-                  leads={leadsRes?.data}
-                  isLoading={leadsLoading}
-                  isError={leadsError}
-                  sort={sort}
-                  onSort={handleSort}
-                  onEdit={openEditModal}
-                  onDelete={setDeletingLead}
-                  onStatusChange={handleStatusChange}
-                />
-                <Pagination
-                  pagination={leadsRes?.pagination}
-                  onPageChange={(p) => {
-                    setPage(p);
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                />
-              </CardContent>
-            </Card>
-          </div>
-
-          <div>
-            <StatusChart data={statsRes?.data} isLoading={statsLoading} />
+      <main>
+        <section className="max-w-6xl mx-auto px-6 py-24 md:py-36 text-center">
+          <h2 className="font-headline-lg text-5xl md:text-6xl text-primary font-black tracking-tight leading-tight">
+            Manage Your Sales<br />
+            <span className="text-on-surface-variant">Pipeline Like a Pro</span>
+          </h2>
+          <p className="text-body-lg text-on-surface-variant mt-6 max-w-xl mx-auto leading-relaxed">
+            NexusCRM helps you track leads, manage contacts, close deals, and stay organized — all from a single, beautiful dashboard.
+          </p>
+          <div className="flex items-center justify-center gap-4 mt-10">
+            <Link
+              href="/register"
+              className="px-8 py-3.5 bg-primary text-on-primary rounded-xl font-label-md text-label-md hover:opacity-90 transition-all active:scale-95 shadow-lg"
+            >
+              Get Started Free
+            </Link>
+            <Link
+              href="/login"
+              className="px-8 py-3.5 border border-outline-variant text-on-surface rounded-xl font-label-md text-label-md hover:bg-surface-container-low transition-all"
+            >
+              Sign In
+            </Link>
           </div>
         </section>
-      </div>
 
-      <LeadModal
-        open={modalOpen}
-        onClose={closeModal}
-        lead={editingLead}
-        onSubmit={handleFormSubmit}
-        isSubmitting={isFormSubmitting}
-      />
+        <section className="max-w-6xl mx-auto px-6 pb-24">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((f) => (
+              <div
+                key={f.title}
+                className="rounded-xl border border-outline-variant/30 bg-surface-container-lowest p-6 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all duration-300"
+              >
+                <span className="material-symbols-outlined text-3xl text-primary-fixed mb-4">{f.icon}</span>
+                <h3 className="font-headline-sm text-headline-sm text-primary mb-2">{f.title}</h3>
+                <p className="text-body-sm text-on-surface-variant leading-relaxed">{f.desc}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
 
-      <ConfirmDialog
-        open={!!deletingLead}
-        onClose={() => setDeletingLead(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Lead"
-        message={`Are you sure you want to delete ${deletingLead?.name ?? 'this lead'}? This action cannot be undone.`}
-        confirmLabel="Delete"
-        isLoading={deleteMutation.isPending}
-      />
-    </AppShell>
+      <footer className="border-t border-outline-variant/20 py-8">
+        <div className="max-w-6xl mx-auto px-6 text-center text-body-sm text-on-surface-variant">
+          &copy; {new Date().getFullYear()} NexusCRM. All rights reserved.
+        </div>
+      </footer>
+    </div>
   );
 }

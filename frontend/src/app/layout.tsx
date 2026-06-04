@@ -16,8 +16,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'LeadFlow CRM',
-  description: 'Manage your sales leads like a pro',
+  title: 'NexusCRM',
+  description: 'Manage your sales pipeline like a pro',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

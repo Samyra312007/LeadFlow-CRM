@@ -10,6 +10,7 @@ const LEAD_STATUS = {
 
 const leadSchema = new mongoose.Schema(
   {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
     name: {
       type: String,
       required: [true, 'Name is required'],
@@ -71,12 +72,12 @@ leadSchema.index({ name: 'text', email: 'text', company: 'text' });
 leadSchema.index({ status: 1 });
 leadSchema.index({ createdAt: -1 });
 
-leadSchema.statics.getStats = async function () {
-  const stats = await this.aggregate([
-    { $group: { _id: '$status', count: { $sum: 1 } } },
-  ]);
+leadSchema.statics.getStats = async function (userId) {
+  const match = userId ? { $match: { user: new mongoose.Types.ObjectId(userId) } } : null;
+  const pipeline = match ? [match, { $group: { _id: '$status', count: { $sum: 1 } } }] : [{ $group: { _id: '$status', count: { $sum: 1 } } }];
+  const stats = await this.aggregate(pipeline);
 
-  const total = await this.countDocuments();
+  const total = userId ? await this.countDocuments({ user: userId }) : await this.countDocuments();
   const byStatus = stats.reduce((acc, s) => {
     acc[s._id] = s.count;
     return acc;

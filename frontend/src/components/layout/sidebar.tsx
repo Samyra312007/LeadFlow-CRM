@@ -5,11 +5,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 const navItems = [
-  { href: '/', label: 'Dashboard', icon: 'dashboard' },
+  { href: '/dashboard', label: 'Dashboard', icon: 'dashboard' },
   { href: '/leads', label: 'Leads', icon: 'group' },
+  { href: '/contacts', label: 'Contacts', icon: 'contacts' },
+  { href: '/deals', label: 'Deals', icon: 'account_tree' },
   { href: '/tasks', label: 'Tasks', icon: 'assignment' },
-  { href: '/activities', label: 'Activities', icon: 'event_note' },
-  { href: '/analytics', label: 'Analytics', icon: 'bar_chart' },
 ];
 
 interface SidebarProps {
@@ -32,12 +32,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   const content = (
     <>
       <div className="mb-8 px-2">
-        <h1 className="font-headline-sm text-headline-sm font-black text-primary">LeadFlow CRM</h1>
+        <h1 className="font-headline-sm text-headline-sm font-black text-primary">NexusCRM</h1>
       </div>
 
       <nav className="flex-1 space-y-1">
         <button
-          onClick={() => { router.push('/?new=true'); onClose(); }}
+          onClick={() => { router.push('/dashboard?new=true'); onClose(); }}
           className="flex items-center gap-3 w-full px-3 py-2.5 mb-4 bg-primary text-on-primary rounded-lg font-label-md text-label-md hover:opacity-90 transition-all active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-secondary-container"
         >
           <span className="material-symbols-outlined text-[20px]">add</span>
@@ -45,7 +45,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </button>
 
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
           return (
             <Link
               key={item.href}
@@ -72,14 +72,6 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         >
           <span className="material-symbols-outlined">settings</span>
           Settings
-        </Link>
-        <Link
-          href="/support"
-          onClick={onClose}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-all font-label-md text-label-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary-container"
-        >
-          <span className="material-symbols-outlined">contact_support</span>
-          Support
         </Link>
       </div>
     </>

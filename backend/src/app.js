@@ -5,6 +5,10 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 
 const leadRoutes = require('./routes/lead.routes');
+const authRoutes = require('./routes/auth.routes');
+const contactRoutes = require('./routes/contact.routes');
+const dealRoutes = require('./routes/deal.routes');
+const taskRoutes = require('./routes/task.routes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -38,7 +42,11 @@ app.get('/api/v1/health', (req, res) => {
   res.json({ success: true, message: 'LeadFlow CRM API is running' });
 });
 
+app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/leads', leadRoutes);
+app.use('/api/v1/contacts', contactRoutes);
+app.use('/api/v1/deals', dealRoutes);
+app.use('/api/v1/tasks', taskRoutes);
 
 // 404 handler for unknown API routes
 app.use('/api', (req, res) => {
