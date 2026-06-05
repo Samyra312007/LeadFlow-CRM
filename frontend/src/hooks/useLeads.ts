@@ -96,28 +96,7 @@ export function useDeleteLead() {
     mutationFn: async (id: string) => {
       await api.delete(`/leads/${id}`);
     },
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['leads'] });
-      const previousQueries = queryClient.getQueriesData<LeadsApiResponse>({ queryKey: ['leads'] });
-      previousQueries.forEach(([queryKey, data]) => {
-        if (data) {
-          queryClient.setQueryData<LeadsApiResponse>(queryKey, {
-            ...data,
-            data: data.data.filter((lead: Lead) => lead.id !== id),
-            pagination: { ...data.pagination, total: data.pagination.total - 1 },
-          });
-        }
-      });
-      return { previousQueries };
-    },
-    onError: (_err, _id, context) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([key, data]) => {
-          if (data) queryClient.setQueryData(key, data);
-        });
-      }
-    },
-    onSettled: () => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       queryClient.invalidateQueries({ queryKey: ['leads', 'stats'] });
     },
