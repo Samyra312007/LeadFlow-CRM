@@ -44,7 +44,7 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 bg-surface/85 backdrop-blur-xl border-b border-outline-variant/20">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="font-headline-sm text-headline-sm font-black text-primary">NexusCRM</h1>
+          <h1 className="font-headline-sm text-headline-sm font-black text-primary">LeadFlow CRM</h1>
           <div className="flex items-center gap-3">
             <Link
               href="/login"
@@ -69,7 +69,7 @@ export default function LandingPage() {
             <span className="text-on-surface-variant">Pipeline Like a Pro</span>
           </h2>
           <p className="text-body-lg text-on-surface-variant mt-6 max-w-xl mx-auto leading-relaxed">
-            NexusCRM helps you track leads, manage contacts, close deals, and stay organized — all from a single, beautiful dashboard.
+            LeadFlow CRM helps you track leads, manage contacts, close deals, and stay organized — all from a single, beautiful dashboard.
           </p>
           <div className="flex items-center justify-center gap-4 mt-10">
             <Link
@@ -105,7 +105,7 @@ export default function LandingPage() {
 
       <footer className="border-t border-outline-variant/20 py-8">
         <div className="max-w-6xl mx-auto px-6 text-center text-body-sm text-on-surface-variant">
-          &copy; {new Date().getFullYear()} NexusCRM. All rights reserved.
+          &copy; {new Date().getFullYear()} LeadFlow CRM. All rights reserved.
         </div>
       </footer>
     </div>

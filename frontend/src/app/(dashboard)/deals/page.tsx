@@ -22,7 +22,7 @@ const dealFormSchema = z.object({
   title: z.string().trim().min(2, 'Title must be at least 2 characters'),
   value: z.string().trim().min(1, 'Value is required').refine((v) => !isNaN(Number(v)) && Number(v) > 0, 'Value must be a positive number'),
   stage: z.enum(['Qualification', 'Demo', 'Proposal', 'Negotiation', 'Closed Won', 'Closed Lost'] as const),
-  contactId: z.string().min(1, 'Please select a contact'),
+  contact: z.string().min(1, 'Please select a contact'),
   notes: z.string().trim().max(1000).optional().or(z.literal('')),
   expectedCloseDate: z.string().min(1, 'Expected close date is required'),
 });
@@ -31,7 +31,7 @@ interface DealFormValues {
   title: string;
   value: string;
   stage: 'Qualification' | 'Demo' | 'Proposal' | 'Negotiation' | 'Closed Won' | 'Closed Lost';
-  contactId: string;
+  contact: string;
   notes?: string;
   expectedCloseDate: string;
 }
@@ -57,9 +57,19 @@ export default function DealsPage() {
     resolver: zodResolver(dealFormSchema),
   });
 
+  const getContactId = (deal: Deal): string => {
+    if (typeof deal.contact === 'object' && deal.contact) return deal.contact._id;
+    return deal.contact as string;
+  };
+
+  const getContactName = (deal: Deal): string => {
+    if (typeof deal.contact === 'object' && deal.contact) return deal.contact.name;
+    return '';
+  };
+
   const openCreateModal = useCallback(() => {
     setEditingDeal(null);
-    reset({ title: '', value: '', stage: 'Qualification', contactId: '', notes: '', expectedCloseDate: '' });
+    reset({ title: '', value: '', stage: 'Qualification', contact: '', notes: '', expectedCloseDate: '' });
     setModalOpen(true);
   }, [reset]);
 
@@ -69,7 +79,7 @@ export default function DealsPage() {
       title: deal.title,
       value: String(deal.value),
       stage: deal.stage,
-      contactId: deal.contactId,
+      contact: getContactId(deal),
       notes: deal.notes || '',
       expectedCloseDate: deal.expectedCloseDate ? format(new Date(deal.expectedCloseDate), 'yyyy-MM-dd') : '',
     });
@@ -206,7 +216,7 @@ export default function DealsPage() {
                           <p className="font-headline-sm text-headline-sm text-primary font-bold">${deal.value.toLocaleString()}</p>
                           <div className="flex items-center gap-1 text-body-sm text-on-surface-variant">
                             <span className="material-symbols-outlined text-[14px]">person</span>
-                            {deal.contactName}
+                            {getContactName(deal)}
                           </div>
                           {deal.expectedCloseDate && (
                             <div className="flex items-center gap-1 text-body-sm text-on-surface-variant">
@@ -246,8 +256,8 @@ export default function DealsPage() {
           <Select
             label="Contact"
             options={[{ value: '', label: 'Select a contact...' }, ...contacts.map((c) => ({ value: c._id, label: c.name }))]}
-            error={errors.contactId?.message}
-            {...register('contactId')}
+            error={errors.contact?.message}
+            {...register('contact')}
           />
           <Input label="Expected Close Date" type="date" error={errors.expectedCloseDate?.message} {...register('expectedCloseDate')} />
           <Textarea label="Notes" placeholder="Deal notes..." rows={3} error={errors.notes?.message} {...register('notes')} />

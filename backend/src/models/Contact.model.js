@@ -8,16 +8,14 @@ const contactSchema = new mongoose.Schema({
   company: { type: String, trim: true, maxlength: 150 },
   position: { type: String, trim: true, maxlength: 100 },
   notes: { type: String, trim: true, maxlength: 2000, default: '' },
-  source: { type: String, enum: ['referral', 'website', 'social', 'event', 'cold-call', 'other'], default: 'other' },
+  source: { type: String, enum: ['Referral', 'Website', 'LinkedIn', 'Cold Call', 'Email', 'Event', 'Other'], default: 'Referral' },
 }, { timestamps: true });
 
 contactSchema.index({ name: 'text', email: 'text', company: 'text' });
 
 contactSchema.methods.toJSON = function () {
   const obj = this.toObject();
-  obj.id = obj._id.toString();
-  delete obj._id;
-  delete obj.__v;
+  obj.id = obj._id;
   return obj;
 };
 

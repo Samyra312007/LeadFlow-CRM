@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,16 +24,19 @@ export default function DashboardPage() {
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [deletingLead, setDeletingLead] = useState<Lead | null>(null);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   const { data: leadsRes, isLoading: leadsLoading, isError: leadsError } = useGetLeads({ page, limit: 10, search, status, sort });
   const { data: statsRes, isLoading: statsLoading, isError: statsError } = useGetStats();
 
   useEffect(() => {
-    if (window.location.search === '?new=true') {
+    if (searchParams.get('new') === 'true') {
       setEditingLead(null);
       setModalOpen(true);
-      window.history.replaceState(null, '', '/dashboard');
+      router.replace('/dashboard');
     }
-  }, []);
+  }, [searchParams, router]);
 
   const createMutation = useCreateLead();
   const updateMutation = useUpdateLead();

@@ -119,8 +119,7 @@ export interface Deal {
   title: string;
   value: number;
   stage: DealStage;
-  contactId: string;
-  contactName: string;
+  contact: { _id: string; name: string; email: string; company: string } | string;
   notes: string;
   expectedCloseDate: string;
   createdAt: string;
@@ -131,7 +130,7 @@ export interface DealFormData {
   title: string;
   value: number;
   stage: DealStage;
-  contactId: string;
+  contact: string;
   notes?: string;
   expectedCloseDate: string;
 }

@@ -81,14 +81,14 @@ const getDealStats = async (req, res, next) => {
     ]);
     const byStage = {};
     let totalValue = 0;
-    let totalDeals = 0;
-    DEAL_STAGES.forEach((s) => { byStage[s] = { count: 0, value: 0 }; });
+    let total = 0;
+    DEAL_STAGES.forEach((s) => { byStage[s] = 0; });
     stages.forEach((s) => {
-      byStage[s._id] = { count: s.count, value: s.totalValue };
+      byStage[s._id] = s.count;
       totalValue += s.totalValue;
-      totalDeals += s.count;
+      total += s.count;
     });
-    res.json({ success: true, data: { byStage, totalDeals, totalValue } });
+    res.json({ success: true, data: { byStage, total, totalValue } });
   } catch (err) { next(err); }
 };
 
